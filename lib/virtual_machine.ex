@@ -1,17 +1,18 @@
 defmodule VirtualMachine do
+  alias VirtualMachine.Instruction
+  alias VirtualMachine.Evaluator
   alias VirtualMachine.Register
 
   def start do
     Register.start_link
   end
 
-  defdelegate [put_register(num, val), get_register(num)], to: Register
-
-  def add(r1, r2, value_r) do
-    {:ok, val1} = get_register(r1)
-    {:ok, val2} = get_register(r2)
-    val = val1 + val2
-    :ok = put_register(value_r, val)
-    :ok
+  def evaluate(%Instruction{name: "load", arguments: {r, val, _}}) do
+    Evaluator.load(r, val)
   end
+  def evaluate(%Instruction{name: "add", arguments: {r1, r2, output_r}}) do
+    Evaluator.add(r1, r2, output_r)
+  end
+
+  defdelegate [add(r1, r2, output_register), load(r, val)], to: Evaluator
 end

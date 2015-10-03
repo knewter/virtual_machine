@@ -1,28 +1,38 @@
 defmodule VirtualMachineTest do
   use ExUnit.Case
+  alias VirtualMachine.Instruction
+  alias VirtualMachine.InstructionParser
+  alias VirtualMachine.Register
+  alias VirtualMachine.Assembler
 
   setup do
     VirtualMachine.start
     :ok
   end
 
-  test "putting a value into a register" do
-    VirtualMachine.put_register(0, 100)
+  test "evaluating an instruction" do
+    assert :ok = %Instruction{name: "load", arguments: {1, 1, 0}}
+                 |> VirtualMachine.evaluate
+    assert {:ok, 1} = Register.get_register(1)
   end
 
-  test "getting a value from a register" do
-    VirtualMachine.put_register(0, 100)
-    assert {:ok, 100} = VirtualMachine.get_register(0)
+  test "parsing and evaluating an instruction" do
+    <<0, 0, 1,  # instruction (load)
+      0, 0, 1,  # arg1
+      0, 0, 2,  # arg2
+      0, 0, 0>> # arg3
+    |> InstructionParser.parse
+    |> VirtualMachine.evaluate
+    assert {:ok, 2} = Register.get_register(1)
   end
 
-  test "getting a register that doesn't exist" do
-    assert {:error, "No such register '4'"} = VirtualMachine.get_register(4)
-  end
+  test "evaluating a program" do
+    program = "load 1 2"
+    {:ok, assembled} = Assembler.assemble(program)
 
-  test "adding two registers and placing the result into a third register" do
-    :ok = VirtualMachine.put_register(0, 1)
-    :ok = VirtualMachine.put_register(1, 2)
-    :ok = VirtualMachine.add(0, 1, 2)
-    assert {:ok, 3} = VirtualMachine.get_register(2)
+    assembled
+    |> InstructionParser.parse
+    |> VirtualMachine.evaluate
+    assert {:ok, 2} = Register.get_register(1)
   end
 end
