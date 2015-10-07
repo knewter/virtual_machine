@@ -8,7 +8,7 @@ defmodule VirtualMachine.EvaluatorTest do
     :ok
   end
 
-  test "adding two registers and placing the result into a third register" do
+  test "adding two registers, placing the result into a third register" do
     :ok = Evaluator.load(0, 1)
     :ok = Evaluator.load(1, 2)
     :ok = Evaluator.add(0, 1, 2)

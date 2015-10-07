@@ -1,12 +1,8 @@
 defmodule VirtualMachine.Register do
   @registers VirtualMachine.Registers
-  @register_size 4
-  @register_data Stream.repeatedly(fn -> 0 end)
-                 |> Enum.take(@register_size)
-                 |> List.to_tuple
 
   def start_link do
-    Agent.start_link(fn -> @register_data end, name: @registers)
+    Agent.start_link(fn -> {0, 0, 0, 0} end, name: @registers)
   end
 
   def put_register(num, val) do
